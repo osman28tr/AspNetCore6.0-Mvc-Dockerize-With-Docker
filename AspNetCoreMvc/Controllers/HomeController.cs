@@ -1,5 +1,6 @@
 ﻿using AspNetCoreMvc.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.FileProviders;
 using System.Diagnostics;
 
 namespace AspNetCoreMvc.Controllers
@@ -8,9 +9,13 @@ namespace AspNetCoreMvc.Controllers
     {
         private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger)
+        private readonly IFileProvider _fileProvider;
+
+
+        public HomeController(ILogger<HomeController> logger,IFileProvider fileProvider)
         {
             _logger = logger;
+            _fileProvider = fileProvider;
         }
 
         public IActionResult Index()
@@ -21,6 +26,19 @@ namespace AspNetCoreMvc.Controllers
         public IActionResult Privacy()
         {
             return View();
+        }
+        public IActionResult ImageShow()
+        {
+            var images = _fileProvider.GetDirectoryContents("wwwroot/Images").ToList().Select(x => x.Name);
+
+            return View(images);
+        }
+        [HttpPost]
+        public IActionResult ImageShow(string name)
+        {
+            var file = _fileProvider.GetDirectoryContents("wwwroot/Images").ToList().First(x => x.Name == name);
+            System.IO.File.Delete(file.PhysicalPath);
+            return RedirectToAction("ImageShow");
         }
         public IActionResult ImageSave()
         {
