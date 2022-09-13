@@ -22,7 +22,26 @@ namespace AspNetCoreMvc.Controllers
         {
             return View();
         }
+        public IActionResult ImageSave()
+        {
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> ImageSave(IFormFile imageFile)
+        {
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
 
+                var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Images", fileName);
+
+                using (var stream=new FileStream(path,FileMode.Create))
+                {
+                    await imageFile.CopyToAsync(stream);
+                }
+            }
+            return View();
+        }
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
